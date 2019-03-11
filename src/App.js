@@ -45,7 +45,8 @@ export class App extends Component {
     this.addCommission = this.addCommission.bind(this)
     this.removeSpeeches = this.removeSpeeches.bind(this)
     this.state = {
-      removed: []
+      removed: [],
+      refresh: false
     }
   }
 
@@ -72,7 +73,8 @@ export class App extends Component {
     fetch("http://mep.re:8080/api/add", {
       method: "POST",
       headers: {
-        Authorization: localStorage.getItem("token")
+        Authorization: localStorage.getItem("token"),
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
         ide: id,
@@ -82,8 +84,7 @@ export class App extends Component {
     })
       .then(res => res.json( ))
       .then(data => {
-        console.log(data)
-        this.forceUpdate()
+        this.componentDidMount()
       })
       .catch(err => {
         console.log("errore:", err)
@@ -94,7 +95,8 @@ export class App extends Component {
     fetch("http://mep.re:8080/api/rm", {
       method: "POST",
       headers: {
-        Authorization: localStorage.getItem("token")
+        Authorization: localStorage.getItem("token"),
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
         ide: id,
@@ -104,8 +106,9 @@ export class App extends Component {
     })
       .then(res => res.json())
       .then(data => {
-        console.log(data)
-        this.forceUpdate()
+        this.setState((prevState) => {
+          this.componentDidMount()
+        })
       })
       .catch(err => {
         console.log("errore:", err)
@@ -122,6 +125,8 @@ export class App extends Component {
     this.state.removed.splice(this.state.removed.indexOf(nCommission), 1)
     this.forceUpdate()
   }
+
+  reload
 
   componentDidMount() {
 
@@ -144,7 +149,7 @@ export class App extends Component {
               e.nCommission = e.committee
               e.committee = <Button className="modCommission" onClick={() => this.removeCommission(e.nCommission)}>{e.nCommission}</Button>
             })
-            delegates=[...delegates, ...data]
+            delegates=data
             this.forceUpdate()
           })
           .catch(err => {
